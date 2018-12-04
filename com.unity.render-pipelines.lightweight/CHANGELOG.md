@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - LWRP now uses the Unity recorder extension to make it possible to capture the output of Cameras.
 - You can now inject a custom render pass before rendering opaque objects. To do so, implement an `IBeforeRender` interface.
 
+### Changed
+- Removed `IBeforeCameraRender` interface. Use `IBeforeRender` instead.
+- Removed `IAfterDepthPrePass` interface.
+
 ### Fixed
 - The foldouts in the Lightweight Asset inspector UI now remember their state.
 - Added missing meta file for GizmosRenderingPass.cs.
@@ -23,10 +27,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Renamed shader variable `unity_LightIndicesOffsetAndCount` to `unity_PerObjectLightData`.
 - Shader variables `unity_4LightIndices0` and `unity_4LightIndices1` are now declared as `unity_PerObjectLightIndices` array.
-
-### Changed
-- Removed `IBeforeCameraRender` interface. Use `IBeforeRender` instead.
-- Removed `IAfterDepthPrePass` interface.
 
 ## [5.1.0] - 2018-11-19
 ### Added
