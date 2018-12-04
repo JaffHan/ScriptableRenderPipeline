@@ -54,7 +54,9 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
         static GUIContent[] s_CameraNamesStrings = null;
         static int[] s_CameraNamesValues = null;
 
-        internal class DebugData
+        static bool needsRefreshingCameraFreezeList = true;
+
+        public class DebugData
         {
             public float debugOverlayRatio = 0.33f;
             public FullScreenDebugMode fullScreenDebugMode = FullScreenDebugMode.None;
@@ -90,9 +92,12 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             public int msaaSampleDebugModeEnumIndex;
             public int debugCameraToFreezeEnumIndex;
         }
-        internal DebugData data;
+        DebugData m_Data;
 
-        static bool needsRefreshingCameraFreezeList = true;
+        public DebugData data { get => m_Data; }
+
+        public static GUIContent[] renderingFullScreenDebugStrings => s_RenderingFullScreenDebugStrings; 
+        public static int[] renderingFullScreenDebugValues => s_RenderingFullScreenDebugValues;
 
         public DebugDisplaySettings()
         {
@@ -104,10 +109,10 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
                 .ToArray();
             s_MsaaSamplesDebugValues = (int[])Enum.GetValues(typeof(MSAASamples));
 
-            data = new DebugData();
+            m_Data = new DebugData();
         }
         
-        Action IDebugData.GetReset() => () => data = new DebugData();
+        Action IDebugData.GetReset() => () => m_Data = new DebugData();
         
         public int GetDebugMaterialIndex()
         {
