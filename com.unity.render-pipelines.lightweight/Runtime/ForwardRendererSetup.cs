@@ -122,6 +122,7 @@ namespace UnityEngine.Experimental.Rendering.LWRP
 
             renderer.SetupPerObjectLightIndices(ref renderingData.cullResults, ref renderingData.lightData);
             RenderTextureDescriptor baseDescriptor = ScriptableRenderer.CreateRenderTextureDescriptor(ref renderingData.cameraData);
+            ClearFlag clearFlag = ScriptableRenderer.GetCameraClearFlag(renderingData.cameraData.camera);
             RenderTextureDescriptor shadowDescriptor = baseDescriptor;
             shadowDescriptor.dimension = TextureDimension.Tex2D;
 
@@ -180,7 +181,7 @@ namespace UnityEngine.Experimental.Rendering.LWRP
             }
 
             foreach (var pass in m_BeforeRenderPasses)
-                renderer.EnqueuePass(pass.GetPassToEnqueue(baseDescriptor, colorHandle, depthHandle));
+                renderer.EnqueuePass(pass.GetPassToEnqueue(baseDescriptor, colorHandle, depthHandle, clearFlag));
 
             if (requiresDepthPrepass)
             {
@@ -202,7 +203,11 @@ namespace UnityEngine.Experimental.Rendering.LWRP
             m_SetupLightweightConstants.Setup(renderer.maxVisibleAdditionalLights, renderer.perObjectLightIndices);
             renderer.EnqueuePass(m_SetupLightweightConstants);
 
-            m_RenderOpaqueForwardPass.Setup(baseDescriptor, colorHandle, depthHandle, ScriptableRenderer.GetCameraClearFlag(camera), camera.backgroundColor, perObjectFlags);
+            // If a before all render pass executed we expect it to clear the color render target
+            if (m_BeforeRenderPasses.Count != 0)
+                clearFlag = ClearFlag.None;
+
+            m_RenderOpaqueForwardPass.Setup(baseDescriptor, colorHandle, depthHandle, clearFlag, camera.backgroundColor, perObjectFlags);
             renderer.EnqueuePass(m_RenderOpaqueForwardPass);
             foreach (var pass in m_AfterOpaquePasses)
                 renderer.EnqueuePass(pass.GetPassToEnqueue(baseDescriptor, colorHandle, depthHandle));

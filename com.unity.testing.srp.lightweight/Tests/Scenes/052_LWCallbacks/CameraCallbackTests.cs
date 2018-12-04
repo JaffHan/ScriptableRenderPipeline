@@ -33,17 +33,19 @@ public class CameraCallbackTests : MonoBehaviour
     internal class ClearColorPass : ScriptableRenderPass
     {
         RenderTargetHandle m_ColorHandle;
+        ClearFlag m_ClearFlag;
 
-        public ClearColorPass(RenderTargetHandle colorHandle)
+        public ClearColorPass(RenderTargetHandle colorHandle, ClearFlag clearFlag)
         {
             m_ColorHandle = colorHandle;
+            m_ClearFlag = clearFlag;
         }
 
         public override void Execute(ScriptableRenderer renderer, ScriptableRenderContext context, ref RenderingData renderingData)
         {
             var cmd = CommandBufferPool.Get("Clear Color");
             cmd.SetRenderTarget(m_ColorHandle.Identifier());
-            cmd.ClearRenderTarget(true, true, Color.yellow);
+            cmd.ClearRenderTarget(CoreUtils.HasFlag(m_ClearFlag, ClearFlag.Color), CoreUtils.HasFlag(m_ClearFlag, ClearFlag.Depth), Color.yellow);
 
             RenderTextureDescriptor opaqueDesc = ScriptableRenderer.CreateRenderTextureDescriptor(ref renderingData.cameraData);
             cmd.GetTemporaryRT(beforeAll.id, opaqueDesc, FilterMode.Point);
@@ -53,9 +55,9 @@ public class CameraCallbackTests : MonoBehaviour
         }
     }
 
-    ScriptableRenderPass IBeforeRender.GetPassToEnqueue(RenderTextureDescriptor baseDescriptor, RenderTargetHandle colorHandle, RenderTargetHandle depthAttachmentHandle)
+    ScriptableRenderPass IBeforeRender.GetPassToEnqueue(RenderTextureDescriptor baseDescriptor, RenderTargetHandle colorHandle, RenderTargetHandle depthAttachmentHandle, ClearFlag clearFlag)
 	{
-        return new ClearColorPass(colorHandle);
+        return new ClearColorPass(colorHandle, clearFlag);
 	}
 
 	ScriptableRenderPass IAfterOpaquePass.GetPassToEnqueue(RenderTextureDescriptor baseDescriptor, RenderTargetHandle colorAttachmentHandle,
