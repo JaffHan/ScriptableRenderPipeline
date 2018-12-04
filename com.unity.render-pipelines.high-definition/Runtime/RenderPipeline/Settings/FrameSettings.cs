@@ -206,29 +206,27 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             frameSettings.Refresh();
         }
 
-        public FrameSettings Override(FrameSettings overridedFrameSettings)
+        public void ApplyOverrideOn(FrameSettings overridedFrameSettings)
         {
             if(overrides == 0)
-            {
-                //nothing to override
-                return overridedFrameSettings;
-            }
+                return;
 
-            FrameSettings result = new FrameSettings(overridedFrameSettings);
             Array values = Enum.GetValues(typeof(FrameSettingsOverrides));
             foreach(FrameSettingsOverrides val in values)
             {
                 if((val & overrides) > 0)
                 {
-                    s_Overrides[val](result, this);
+                    s_Overrides[val](overridedFrameSettings, this);
                 }
             }
 
-            //propagate override to be chained
-            result.overrides = overrides | overridedFrameSettings.overrides;
+            lightLoopSettings.ApplyOverrideOn(overridedFrameSettings.lightLoopSettings);
 
-            result.Refresh();
-            return result;
+            //propagate override to be chained
+            overridedFrameSettings.overrides = overrides | overridedFrameSettings.overrides;
+
+            //refresh enums for DebugMenu
+            overridedFrameSettings.Refresh();
         }
 
         // Init a FrameSettings from renderpipeline settings, frame settings and debug settings (if any)
